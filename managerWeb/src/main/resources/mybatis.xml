@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+     
+	<settings>
+	  <setting name="cacheEnabled" value="true"/>
+	  
+	  <!-- 开启懒加载 -->
+	  <setting name="lazyLoadingEnabled" value="true"/>
+	  
+	  <!-- true:调用主对象的任意方法,都会加载延迟对象 -->
+	  <!-- false: 触发加载延迟对象的时机
+	      |-调用主对象的lazyLoadTriggerMethods设置的方法
+	      |-使用延迟对象
+	   -->
+	  <setting name="aggressiveLazyLoading" value="false"/>
+	  <!-- 调用主对象的什么方法会触发加载延迟对象 -->
+	  <setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>
+	</settings>
+      
+    <typeAliases>
+      <package name="domain"/>
+     </typeAliases> 
+      <!-- 这里的mapper不用加 -->
+<!-- 	<mappers>
+	    <mapper resource="UserMapper.xml"/>
+	</mappers> -->
+</configuration>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper.UserMapper">
+    <select id="findAll" resultType="domain.User">
+        select * from user
+    </select>
+
+    <select id="login" resultType="domain.User">
+        select * from user where loginName=#{loginName} and password=#{password}
+    </select>
+
+    <!--List<User> findByQuery(UserQuery userQuery);-->
+    <select id="findByQuery" resultType="domain.User" parameterType="query.UserQuery">
+        select * from user
+        <where>
+            <if test="name != null and name !=''">
+                and name = #{name}
+            </if>
+            <if test="loginName != null and loginName != ''">
+                and loginName = #{loginName}
+            </if>
+        </where>
+        limit #{offset},#{pageSize}
+    </select>
+
+    <!--int deleteByIds(String[] idArray);-->
+
+    <delete id="deleteByIds">
+        delete from user where id in
+        <foreach collection="array" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="add" parameterType="domain.User">
+        insert into user(name,loginName,password,status,header) values (#{name},#{loginName},#{password},#{status},#{header})
+    </insert>
+
+    <select id="findById" parameterType="int" resultType="domain.User">
+        select * from user where id = #{id}
+    </select>
+
+    <update id="update" parameterType="domain.User">
+        update user
+        <set>
+            <if test="name!=null and name!=''">
+                name=#{name},
+            </if>
+            <if test="header!=null and header!=''">
+                header = #{header},
+            </if>
+            <if test="loginName!=null and loginName != ''">
+                loginName = #{loginName}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:util="http://www.springframework.org/schema/util" xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        "> 
+        
+      <context:component-scan base-package="service"></context:component-scan>
+       
+     <!--  <context:property-placeholder location="classpath:db.properties" system-properties-mode="NEVER"/>
+      管理数据源
+      <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+         <property name="url" value="${url}"></property>
+         <property name="driverClassName" value="${driverClassName}"></property>
+         <property name="username" value="${username}"></property>
+         <property name="password" value="${password}"></property>
+      </bean> -->
+      
+     	<!-- 
+     	
+     	com.alibaba.druid.pool.DruidDataSource xx = null;
+		xx.setDriverClassName(driverClass);
+		xx.setPassword(password);
+		xx.setUrl(jdbcUrl);
+		xx.setUsername(username); 
+		
+		url=jdbc:mysql://localhost:3306/helloworld?useSSL=false&amp;serverTimezone=UTC
+		driverClassName=com.mysql.jdbc.Driver
+		password=root
+		username=123456
+		多行编辑：alt+shift+a 转换小写alt+shift+Y 转换大写alt+shift+X
+		-->
+		<!-- 数据源 -->
+		<!-- 账号和密码内容一定不要出错 -->
+      <context:property-placeholder location="classpath:db.properties" system-properties-mode="NEVER"/>
+      <bean id = "dataSource" class = "com.alibaba.druid.pool.DruidDataSource">
+      	<property name="url" value="${url}"></property>
+      	<property name="driverClassName" value="${driverClassName}"></property>
+      	<property name="username" value="${username}"></property>
+      	<property name="password" value="${password}"></property>
+      </bean>
+      
+      <!-- 事务处理 -->
+      <!-- public void setDataSource(DataSource dataSource)  -->
+      <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+      	<property name="dataSource" ref="dataSource"></property>
+      </bean>
+      
+      <tx:advice id="txAdvice" transaction-manager="txManager">
+      	<tx:attributes>
+      		<tx:method name="find*" read-only="true" propagation="SUPPORTS"/>
+      		<tx:method name="get*" read-only="true" propagation="SUPPORTS"/>
+      		<tx:method name="query*" read-only="true" propagation="SUPPORTS"/>
+      		<tx:method name="*"/>
+      	</tx:attributes>
+      </tx:advice>
+      <!-- 这里是 pointcut-ref-->
+      <aop:config>
+      	<aop:pointcut expression="execution( * service.*.*(..))" id="pointCut"/>
+      	<aop:advisor advice-ref="txAdvice" pointcut-ref="pointCut" />
+      </aop:config>
+      
+      
+      
+      <!-- 事务处理 -->
+<!--       <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+          <property name="dataSource" ref="dataSource"></property>
+      </bean>
+      
+      <tx:advice id="txAdvice" transaction-manager="txManager">
+          <tx:attributes>
+              
+              <tx:method name="find*" read-only="true" propagation="SUPPORTS"/>
+              <tx:method name="get*" read-only="true" propagation="SUPPORTS"/>
+              <tx:method name="query*" read-only="true" propagation="SUPPORTS"/>
+              <tx:method name="*"/>
+          </tx:attributes>
+      </tx:advice>
+      
+      <aop:config>
+          <aop:pointcut expression="execution( * com.neu.ssm.service.impl.*.*(..))" id="pointCut"/>
+          <aop:advisor advice-ref="txAdvice"/>
+      </aop:config>  -->
+      
+      <!-- SqlSessionFactory
+               DataSoruce
+       -->
+       
+       
+       <!-- 在mybatis-spring中有一个类SqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>
+       		xx.setDataSource(dataSource);
+			xx.setConfigLocation(configLocation);
+			xx.setMapperLocations(mapperLocations);
+       
+        -->
+       <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+       		<property name="dataSource" ref="dataSource"></property>
+       		<property name="configLocation" value="classpath:mybatis.xml"></property>
+       		<property name="mapperLocations">
+       			<list>
+       				<value>classpath:mapper/*Mapper.xml</value>
+       			</list>
+       		</property>
+       </bean>
+       
+       
+     <!--  <bean class="org.mybatis.spring.SqlSessionFactoryBean">
+         <property name="dataSource" ref="dataSource"></property>
+         <property name="configLocation" value="classpath:mybatis.xml"></property>
+         <property name="mapperLocations">
+             <list>
+                <value>classpath:*Mapper.xml</value>
+             </list>
+         </property>
+      </bean> -->
+      
+      <!-- 
+      	会到指定的包下创建接口的代理对象
+      	xx.setBasePackage(basePackage); 
+      	xx.setSqlSessionFactoryBeanName(sqlSessionFactoryName);-->
+      <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+      	<property name="basePackage" value="mapper"></property>
+      	<!-- 属性名字不要写错了 -->
+      	<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+      </bean>
+      
+      
+      
+      <!-- 会到指定的包下将创建接口的代理对象-->
+     <!--  <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+          <property name="basePackage" value="com.neu.ssm.mapper"></property>
+      </bean> -->
+        
+</beans>

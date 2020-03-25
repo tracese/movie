@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util" xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        ">
+      <context:component-scan base-package="controller"></context:component-scan>
+      <bean id="viewResolver"
+            class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+            <property name="prefix" value="/WEB-INF/jsp/"/>
+            <property name="suffix" value=".jsp"/>
+      </bean>
+
+      <!-- 开启注解扫描 -->
+      <mvc:annotation-driven  validator="validator"/>
+
+      <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+            <property name="providerClass" value="org.hibernate.validator.HibernateValidator"/>
+            <property name="validationMessageSource" ref="messageSource"></property>
+      </bean>
+
+      <bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+            <property name="cacheSeconds" value="120"></property>
+            <property name="fileEncodings" value="utf-8"></property>
+            <!-- 用来指定校验的信息 -->
+            <property name="basenames">
+                  <array>
+                        <value>classpath:message</value>
+                  </array>
+
+            </property>
+      </bean>
+
+      <mvc:resources mapping="/static/**" location="/static/"></mvc:resources>
+      <mvc:interceptors>
+            <mvc:interceptor>
+                  <mvc:mapping path="/**"/>
+                  <mvc:exclude-mapping path="/static/**"/>
+                  <bean class="interceptor.LoginInterceptor"/>
+            </mvc:interceptor>
+      </mvc:interceptors>
+</beans>
